@@ -1,5 +1,6 @@
 import BlackjackAgent 
 import gymnasium as gym
+import numpy as np
 
 # hyper parameters
 learning_rate = 0.01
@@ -30,3 +31,43 @@ for episode in tqdm(range(n_episodes)):
         obs = next_obs
 
     agent.decay_epsilon()
+
+from matplotlib import pyplot as plt
+
+def get_moving_avs(arr, window, convolution_mode):
+    return np.convolve(
+        np.array(arr).flatten(),
+        np.ones(window),
+        mode = convolution_mode
+    )
+
+rolling_length = 500
+figs, axs = plt.subplots(ncols = 3, figsize = (12, 5))
+
+axs[0].set_title("Episode rewards")
+reward_moving_average = get_moving_avs(
+    env.return_queue,
+    rolling_length,
+    "valid"
+)
+
+axs[0].plot(range(len(reward_moving_average)),reward_moving_average)
+
+axs[1].set_title("Episode lengths")
+q_values_moving_average = get_moving_avs(
+    agent.training_error,
+    rolling_length,
+    "valid"
+)
+axs[1].plot(range(len(q_values_moving_average)), q_values_moving_average)
+
+axs[2].set_title("training_error")
+training_error_moving_average = get_moving_avs(
+    agent.training_error,
+    rolling_length,
+    "same"
+)
+axs[2].plot(range(len(training_error_moving_average)), training_error_moving_average)
+
+plt.tight_layout()
+plt.show()

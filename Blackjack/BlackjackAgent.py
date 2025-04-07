@@ -1,3 +1,4 @@
+import DQN
 from collections import defaultdict
 import gymnasium as gym
 import numpy as np
@@ -33,9 +34,6 @@ class BlackjackAgent:
             reward + self.discount_factor * future_q_value - self.q_values[obs][action]
         ) 
 
-        self.q_values[obs][action] = (
-            self.q_values[obs][action] + self.lr * temporal_difference
-        )
         self.q_values[obs][action] = (
             self.q_values[obs][action] + self.lr * temporal_difference
         )
