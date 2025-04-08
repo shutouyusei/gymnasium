@@ -26,20 +26,20 @@ class Agent:
             return self.env.action_space.sample()
         else:
             torch_state = torch.tensor(state).float()
-            #　勾配計算の無効化を行い、ニューラルネットワークの更新を止める
-            # そのため、この場合のfowardは推論モード
             with torch.no_grad():
                 q_value = self.net(torch_state)
             return q_value.argmax().item()
 
     def update(self, state, action, reward, next_state, done):
-        torch_state = torch.tensor(state,requires_grad = True).float()
-        future_q_value = self.net(torch_state).max()
-        torch_state = torch.tensor(next_state,requires_grad = True).float()
-        target = self.net(torch_state).max()
+        q_value = self.net(torch.tensor(state).float()).max()
+        future_q_value = self.net(torch.tensor(next_state).float()).max()
+        target = reward + self.discount_factor * future_q_value * (1 - done)
         loss_fn = torch.nn.MSELoss()
-        loss = loss_fn(target, future_q_value + reward )
+        loss = loss_fn(q_value, target)
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        self.training_error.append(loss.item())
 
+    def decay_epsilon(self):
+        self.epsilon = max(self.final_epsilon, self.epsilon - self.epsilon_decay)
