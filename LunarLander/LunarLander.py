@@ -2,19 +2,20 @@ import gymnasium as gym
 import Agent
 import numpy as np
 from tqdm import tqdm
-
+import Memory
 
 # hyper parameters
 learning_rate = 0.1
-n_episodes = 100_00
+n_episodes = 100_0
 start_epsilon = 1.0
 epsilon_decay = start_epsilon / (n_episodes / 2)
 final_epsilon = 0.1
 
 env = gym.make("LunarLander-v3")
 env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length = n_episodes)
+memory = Memory.ExperienceReplay(n_episodes, 32)
 
-agent = Agent.Agent(env,learning_rate = learning_rate,initial_epsilon = start_epsilon,epsilon_decay = epsilon_decay,final_epsilon = final_epsilon,)
+agent = Agent.Agent(env,initial_epsilon = start_epsilon,epsilon_decay = epsilon_decay,final_epsilon = final_epsilon,memory = memory,)
                     
 for episode in tqdm(range(n_episodes)):
     obs, _= env.reset()
