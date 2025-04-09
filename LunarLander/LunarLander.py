@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 # hyper parameters
-learning_rate = 0.01
+learning_rate = 0.1
 n_episodes = 100_00
 start_epsilon = 1.0
 epsilon_decay = start_epsilon / (n_episodes / 2)
@@ -74,5 +74,25 @@ while not done:
     action = agent.act(obs)
     obs,reward,terminated,truncated,info = env.step(action)
     done = terminated or truncated
+
+def plot_rewards(rewards):
+    """
+    報酬の移動平均を計算し、グラフを表示します。
+
+    Parameters
+    ----------
+    rewards : list of float
+        各エピソードの報酬のリスト
+    """
+    # 報酬の移動平均を計算
+    moving_avg = np.convolve(rewards, np.ones((100,))/100, mode='valid')
+    
+    # グラフをプロット
+    plt.plot(np.arange(len(moving_avg)), moving_avg)
+    plt.title('Training Rewards')
+    plt.xlabel('Episode')
+    plt.ylabel('100 Episode Average')
+    plt.savefig("result.png") 
+    plt.show()
 
 env.close()
